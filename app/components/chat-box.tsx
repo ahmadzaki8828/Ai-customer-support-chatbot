@@ -1,5 +1,5 @@
 "use client";
-import { Box, Button, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Stack, TextField } from "@mui/material";
 import { useState } from "react";
 
 export const ChatBox = () => {
@@ -11,6 +11,58 @@ export const ChatBox = () => {
   ]);
 
   const [message, setMessage] = useState("");
+
+  const sendMessage = async () => {
+    setMessage("");
+    setMessages((messages) => [
+      ...messages,
+      { role: "user", content: message },
+      { role: "assistant", content: "" },
+    ]);
+
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify([...messages, { role: "user", content: message }]),
+    });
+
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+
+    let result = "";
+
+    const processText = async (
+      readResult: ReadableStreamReadResult<Uint8Array>
+    ): Promise<string | undefined> => {
+      const { done, value } = readResult;
+
+      if (done) {
+        return result;
+      }
+
+      const text = decoder.decode(value, { stream: true });
+      result += text;
+
+      setMessages((messages) => {
+        const lastMessage = messages[messages.length - 1];
+        const otherMessages = messages.slice(0, messages.length - 1);
+        return [
+          ...otherMessages,
+          { ...lastMessage, content: lastMessage.content + text },
+        ];
+      });
+
+      const next = await reader?.read();
+      if (next) {
+        return processText(next);
+      }
+      return result;
+    };
+
+    await reader?.read().then(processText);
+  };
 
   return (
     <Box
@@ -62,7 +114,9 @@ export const ChatBox = () => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
-          <Button variant="contained">Send</Button>
+          <Button variant="contained" onClick={sendMessage}>
+            Send
+          </Button>
         </Stack>
       </Stack>
     </Box>

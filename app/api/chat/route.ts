@@ -13,7 +13,7 @@ const systemPrompt = `You are an AI-powered customer support assistant for Heads
 
 Your goal is to provide accurate information, assist with common inquiries, and ensure a positive experience for all HeadStartAI users.`;
 
-export async function Post(req: NextRequest) {
+export async function POST(req: NextRequest) {
   const openai = new OpenAI();
   const data = await req.json();
 
