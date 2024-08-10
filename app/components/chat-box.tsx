@@ -1,16 +1,27 @@
 "use client";
-import { Box, Button, Stack, TextField } from "@mui/material";
-import { useState } from "react";
+import {
+  Box,
+  Stack,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  IconButton,
+} from "@mui/material";
+import { useState, useRef, useEffect } from "react";
+import { MedicalServices } from "@mui/icons-material";
 
 export const ChatBox = () => {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: `Hi, I'm the Headstarter Support Agent, how can I assist you today?`,
+      content:
+        "Hello! I am your First Aid Assistant. How can I help you with emergency advice today?",
     },
   ]);
 
   const [message, setMessage] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null); // Add type here
 
   const sendMessage = async () => {
     setMessage("");
@@ -64,61 +75,127 @@ export const ChatBox = () => {
     await reader?.read().then(processText);
   };
 
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
   return (
     <Box
-      width={"100vw"}
-      height={"100vh"}
-      className="flex flex-col justify-center items-center"
+      width="100vw"
+      height="100vh"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      sx={{
+        backgroundColor: "#E0F7FA", // Light blue background
+        padding: "2%",
+      }}
     >
-      <Stack
-        width={"600px"}
-        height={"700px"}
-        direction={"column"}
-        spacing={3}
-        border={"solid"}
-        className="p-2"
+      <Stack direction="row" spacing={2} alignItems="center" mb={3}>
+        <MedicalServices sx={{ fontSize: 40, color: "#FF4C4C" }} />
+        <Typography
+          variant="h4"
+          fontWeight="600"
+          sx={{
+            color: "#FF4C4C", // Bright red for headings
+            fontFamily: "Arial, sans-serif", // Changed font for heading
+          }}
+        >
+          First Aid Chatbot
+        </Typography>
+      </Stack>
+      <Box
+        sx={{
+          width: { xs: "100%", sm: "80%", md: "60%", lg: "50%" },
+          bgcolor: "#FFFFFF", // White background for the chat area
+          borderRadius: "12px",
+          padding: "16px",
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+          position: "relative",
+        }}
       >
         <Stack
-          direction={"column"}
           spacing={2}
-          maxHeight={"100%"}
-          className="flex-grow overflow-auto"
+          sx={{
+            height: "400px",
+            overflowY: "auto",
+            padding: "8px",
+          }}
         >
-          {messages.map((message, index) => (
-            <Box
+          {messages.map((msg, index) => (
+            <Paper
               key={index}
-              display={"flex"}
-              justifyContent={
-                message.role === "assistant" ? "flex-start" : "flex-end"
-              }
+              elevation={3}
+              sx={{
+                padding: "12px",
+                backgroundColor:
+                  msg.role === "assistant" ? "#FFEBEE" : "#ff8e99",
+                color: "#000000",
+                alignSelf: msg.role === "assistant" ? "flex-start" : "flex-end",
+                borderRadius:
+                  msg.role === "assistant"
+                    ? "12px 12px 12px 0px"
+                    : "12px 12px 0px 12px",
+                maxWidth: "80%",
+                //className= 'bg-[#ff8e99]'
+              }}
             >
-              <Box
-                bgcolor={
-                  message.role === "assistant"
-                    ? "primary.main"
-                    : "secondary.main"
-                }
-                color={"white"}
-                borderRadius={16}
-                p={3}
-              >
-                {message.content}
-              </Box>
-            </Box>
+              {msg.content.split("\n").map((line, i) => (
+                <Typography key={i} paragraph={i > 0}>
+                  {line}
+                </Typography>
+              ))}
+            </Paper>
           ))}
+          <div ref={messagesEndRef} />
         </Stack>
-        <Stack direction={"row"} spacing={2}>
+
+        <Stack direction="row" spacing={2} mt={2}>
           <TextField
-            label="message"
+            label="Type your message..."
             fullWidth
+            variant="filled"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            InputProps={{
+              sx: {
+                backgroundColor: "#E0F2F1",
+                color: "#000000",
+                borderRadius: "8px",
+                "&:hover": {
+                  backgroundColor: "#B2DFDB",
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#004D40",
+                },
+                "& .MuiFilledInput-underline:before": {
+                  borderBottomColor: "transparent",
+                },
+                "& .MuiFilledInput-underline:after": {
+                  borderBottomColor: "#FF4C4C",
+                },
+              },
+            }}
           />
-          <Button variant="contained" onClick={sendMessage}>
+          <Button
+            variant="contained"
+            onClick={sendMessage}
+            sx={{
+              bgcolor: "#FF4C4C",
+              color: "#FFFFFF",
+              borderRadius: "8px",
+              "&:hover": {
+                bgcolor: "#C62828",
+              },
+            }}
+          >
             Send
           </Button>
         </Stack>
-      </Stack>
+      </Box>
     </Box>
   );
 };
