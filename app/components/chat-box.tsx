@@ -140,7 +140,6 @@ export const ChatBox = () => {
                     ? "12px 12px 12px 0px"
                     : "12px 12px 0px 12px",
                 maxWidth: "80%",
-                //className= 'bg-[#ff8e99]'
               }}
             >
               {msg.content.split("\n").map((line, i) => (
